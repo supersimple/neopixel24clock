@@ -6,3 +6,6 @@ This is adapted from a 60pixel ring project by Andy Doro.
 I modified his code to work with the neopixel 24.
 
 I also changed the seconds/minutes/hours representation to only use 1 pixel each, rather than a sweeping time representation.
+
+
+![fritzing](https://github.com/supersimple/neopixel24clock/blob/master/neopixel24clock_bb.png?raw=true)
