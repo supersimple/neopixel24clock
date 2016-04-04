@@ -27,6 +27,7 @@
 #define NEOPIN 12
 #define BRIGHTNESS 64 // set max brightness
 #define PIXELS 24
+#define DSTPIN 13 //Daylight Saving Time Adjust
 
 RTC_DS1307 RTC; // Establish clock object
 DateTime Clock; // Holds current clock time
@@ -42,6 +43,7 @@ void setup () {
   RTC.begin();   // begin clock
   // set pinmodes
   pinMode(NEOPIN, OUTPUT);
+  pinMode(DSTPIN, INPUT);
 
   if (! RTC.isrunning()) {
     Serial.println("RTC is NOT running!");
@@ -55,7 +57,7 @@ void setup () {
   //strip.show(); // Initialize all pixels to 'off'
 
   strip.setBrightness(BRIGHTNESS); // set brightness
-
+  
   // startup sequence
   delay(500);
   colorWipe(strip.Color(202,217,228), 10); // Red
@@ -73,14 +75,21 @@ void loop () {
   // get time
   Clock = RTC.now(); // get the RTC time
 
+  int dstOn = digitalRead(DSTPIN);
+  
   // since there are only 24 pixels to represent 60 seconds/minutes
   // each second/minute will only advance every 2.5 units
   secondval = (int) (Clock.second() * 0.4);  // get seconds
   minuteval = (int) (Clock.minute() * 0.4);  // get minutes
   hourval = Clock.hour();   // get hours
-  if (hourval > 11) hourval -= 12; // This clock is 12 hour, if 13-23, convert to 0-11
-  //if(minuteval > 29) hourval += 1; //advance the hour marker 1 pixel at half-past the hour
 
+  //Adjustment for daylight savings time
+  if(dstOn == HIGH){
+    dstAdjust();
+  }
+  
+  if (hourval > 11) hourval -= 12; // This clock is 12 hour, if 13-23, convert to 0-11
+  
   // light mode
   // Blue: strip.Color(10,145,207)
   // Green: strip.Color(10,207,79)
@@ -137,5 +146,15 @@ void colorWipe(uint32_t c, uint8_t wait) {
     strip.setPixelColor(i, c);
     strip.show();
     delay(wait);
+  }
+}
+
+//turns clock back 1 hour for DST
+void dstAdjust(){
+  if(hourval == 0){
+    //this is midnight, so we need to turn back the hours
+    hourval == 23
+  }else{
+    hourval -= 1
   }
 }
